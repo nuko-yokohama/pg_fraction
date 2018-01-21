@@ -40,10 +40,8 @@ test=# SELECT '2/6' AS result;
 ### 形式
 
 ```
-[{<空白> ...}][<負符号>]{<数字>...}[<空白>...] <斜線> [{<空白> ...}] {<数字>...} [<空白>...]
+[<負符号>]{<数字>...} <斜線> {<数字>...} ]
 ```
-
-* <空白>は空白文字(0x20)です。
 
 * <負符号>はハイフン(-)です。
 
@@ -53,31 +51,48 @@ test=# SELECT '2/6' AS result;
 
 * <斜線>はスラッシュ文字(/)です。
 
-  ​
 
 ### 記述例
 
 ```
-SELECT '1/3' -- 三分の一
-```
+fraction=# SELECT '3/4'::fraction;
+ fraction 
+----------
+ 3/4
+(1 row)
 
-```
-SELECT ' 2 / 5 ' -- 空白を数字の前後に含んでもいい。
-```
+fraction=# SELECT '3/6'::fraction;
+ fraction 
+----------
+ 1/2
+(1 row)
 
-```
-SELECT '-3 / 7' -- 分子に負数を示す符号を指定できる。
-```
+fraction=# SELECT '0/10000'::fraction;
+ fraction 
+----------
+ 0/1
+(1 row)
 
+fraction=# SELECT '3/100000'::fraction;
+ERROR:  pg_fraction:: overflow error (max=99999) "3/100000"
+LINE 1: SELECT '3/100000'::fraction;
+               ^
+fraction=# SELECT 'foo/bar'::fraction;
+ERROR:  pg_fraction:invalid input syntax: "foo/bar"
+LINE 1: SELECT 'foo/bar'::fraction;
+               ^
+fraction=# 
 ```
-SELECT ' 5 / 100000 ' -- 分母桁数オーバーエラーになる。桁数は約分前に評価される。
-```
-
-
 
 ## サポートする演算機能
 
 pg_fractionは以下の演算をサポートします。
+
+### 値取得関数
+
+| 関数形式                             | 機能   | 記述例               |
+| -------------------------------- | ---- | ----------------- |
+| doble precision get_value(fraction) | 分数の値をdouble precisionで返却する   | get_value('1/3') |
 
 ### 四則演算子
 
@@ -90,24 +105,12 @@ pg_fractionは以下の演算をサポートします。
 | *    | 左辺と右辺を乗算します  | '1/2' * '3/4' |
 | /    | 左辺から右辺を除算します | '1/2' / '3/4' |
 
-### 四則演算関数
-
-いずれの関数も、分子または分母数が99999を超えた場合にはエラーとなる。
-
-| 関数形式                             | 機能   | 記述例               |
-| -------------------------------- | ---- | ----------------- |
-| fraction add(fraction, fraction) | 加算   | add('1/2', '3/4') |
-| fraction sub(fraction, fraction) | 減算   | sub('1/2', '3/4') |
-| fraction mul(fraction, fraction) | 乗算   | mul('1/2', '3/4') |
-| fraction div(fraction, fraction) | 除算   | div('1/2', '3/4') |
-
 ### 集約演算関数
 
 | 関数形式                   | 機能   | 備考                                       |
 | ---------------------- | ---- | ---------------------------------------- |
 | fraction max(fraction) | 最大値  |                                          |
 | fraction min(fraction) | 最小値  |                                          |
-| fraction sum(fraction) | 合計値  | 分子または分母数が<br />99999を超えた場合には<br />エラーとなる。 |
 
 ### 比較演算子
 
@@ -125,12 +128,10 @@ pg_fractionは以下の演算をサポートします。
 pg_fractionではB-treeインデックスをサポートします。
 
 
-
 ## 型変換サポート
 
 * 5桁以内の整数値(-99999～99999)を分数型にキャスト可能です。
-* 分子/分母の演算結果を整数型にキャスト可能です。
-
+* 分子/分母の演算結果をdouble precision型にキャスト可能です。
 
 
 ## インストール
@@ -157,5 +158,6 @@ $ psql your_database -c "CREATE EXTENSION pg_fraction"
 
 ## 著者
 
-ぬこ＠横浜(@nuko_yokohama) (https://twitter.com/nuko_yokohama)
+* ぬこ＠横浜(nuko_yokohama)
+    * Twitter [@nuko_yokohama](https://twitter.com/nuko_yokohama)
 

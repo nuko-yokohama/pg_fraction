@@ -1,0 +1,5 @@
+# pg_fraction extension
+comment = 'fraction data type'
+default_version = '1.0'
+module_pathname = '$libdir/pg_fraction'
+relocatable = true
