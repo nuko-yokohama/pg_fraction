@@ -94,6 +94,7 @@ LANGUAGE C STRICT
 CREATE AGGREGATE max (fraction)
 (
 sfunc = fraction_max,
+combinefunc = fraction_max,
 stype = fraction,
 initcond = '-99999/1',
 parallel = safe
@@ -111,6 +112,7 @@ LANGUAGE C STRICT
 CREATE AGGREGATE min (fraction)
 (
 sfunc = fraction_min,
+combinefunc = fraction_min,
 stype = fraction,
 initcond = '99999/1',
 parallel = safe
